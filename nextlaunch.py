@@ -54,7 +54,8 @@ def main():
 				#print(f"JSON data saved to {tmpFile}")
 				#print(f"Last modified: {whenLastModified(tmpFile)}")		
 			if (timeDifference < timedelta(minutes=10)):
-				print(f"Cache was modified recently at {lastModifiedDate}, skipping overwrite")
+				#print(f"Cache was modified recently at {lastModifiedDate}, skipping overwrite")
+				whatever = "blah blah placeholder"
 			else:
 				jsonData = fetchJSON(url)
 				saveJSON(jsonData, tmpFile)
@@ -87,7 +88,7 @@ def main():
 	wholeThing = json.loads(manifest)
 	mission = wholeThing["results"][0]["name"]
 	net = wholeThing["results"][0]["net"]
-	return(f"Next launch: {str(mission)} at {str(net)}")
+	return(f"Next launch: {str(mission)} | {str(net)}")
 	#return results
 
 print(f"{main()}") # FINALLY!!!!!1
