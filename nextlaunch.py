@@ -55,7 +55,7 @@ def main():
 				#print(f"Last modified: {whenLastModified(tmpFile)}")		
 			if (timeDifference < timedelta(minutes=10)):
 				#print(f"Cache was modified recently at {lastModifiedDate}, skipping overwrite")
-				whatever = "blah blah placeholder"
+				whatever = "blah blah placeholder" # prevent errors
 			else:
 				jsonData = fetchJSON(url)
 				saveJSON(jsonData, tmpFile)
@@ -64,7 +64,7 @@ def main():
 		else:
 			fileThing = open(tmpFile, "w")
 			fileThing.write(badVal)
-			print(f"Cache does not exist at {tmpFile}, creating one")
+			#print(f"Cache does not exist at {tmpFile}, creating one")
 			with open(tmpFile, "r") as fileThing:
 				manifest = fileThing.read()
 			jsonData = fetchJSON(url)
@@ -74,7 +74,7 @@ def main():
 	except FileNotFoundError:
 		fileThing = open(tmpFile, "w")
 		fileThing.write(badVal)
-		print(f"Cache does not exist at {tmpFile}, creating one")
+		#print(f"Cache does not exist at {tmpFile}, creating one")
 		with open(tmpFile, "r") as fileThing:
 			manifest = fileThing.read()
 		jsonData = fetchJSON(url)
