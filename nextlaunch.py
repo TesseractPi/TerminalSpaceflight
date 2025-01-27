@@ -9,23 +9,24 @@ import signal
 import requests
 import json
 import os
+import platform
+import argparse
 from datetime import *
 
+runningOn = platform.system()
+fileName = "nextlaunch.json"
 badVal = "{'name':'no','net':'whenever'}" # something is better than nothing
-tmpFile = '/tmp/nextlaunch.json' # change to whatever windows temp dir if on windows
+tmpFileLinux = "/tmp/" # or whatever
+tmpFileWindows = "%TEMP%\\"
+tmpFileMac = "$tmpFile/"
 url = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?limit=1&mode=list&offset=2" # launchlibrary2 2.3, only the next launch in list
 
-def signal_handler(sig, frame): # handle termination well
-	logger.info("Received signal to stop, exiting")
-	sys.stdout("Received signal to stop, exiting")
-	sys.stdout.write("\n")
-	sys.stdout.flush()
-	sys.exit(0)
-
-# signal handlers for termination
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+if runningOn == "Linux":
+	tmpFile = tmpFileLinux + fileName
+elif runningOn == "Windows":
+	tmpFile = tmpFileWindows + fileName
+elif runningOn == "Darwin":
+	tmpFile = tmpFileMac + fileName
 
 def fetchJSON(url): # get json from url
 	response = requests.get(url)
@@ -40,22 +41,26 @@ def whenLastModified(tmpFile): # find when file last modified
 	timestamp = os.path.getmtime(tmpFile)
 	return datetime.fromtimestamp(timestamp)
 
+def parseArgs(): # do some cmd line parse things or whatever
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-v", "--verbose", help = "Display extra messages so you know what's going on", action = "count", default=0)
+``	return parser.parse_args()
+
 def main():
 	manifest = "" # make sure it exists first
 	# does file exist?
 	try:
 		if os.path.exists(tmpFile):
-			#print(f"File already exists at {tmpFile}")
+			#print(f"Cache already exists at {tmpFile}")
 			lastModifiedDate = whenLastModified(tmpFile)
 			timeDifference = datetime.now() - lastModifiedDate
-			if manifest == badVal or manifest == "":
-				jsonData = fetchJSON(url)
-				saveJSON(jsonData, tmpFile)
-				#print(f"JSON data saved to {tmpFile}")
-				#print(f"Last modified: {whenLastModified(tmpFile)}")		
 			if (timeDifference < timedelta(minutes=10)):
 				#print(f"Cache was modified recently at {lastModifiedDate}, skipping overwrite")
-				whatever = "blah blah placeholder" # prevent errors
+				whatever = "blah blah placeholder" # prevent errors from there being nothing in here
+			elif manifest == badVal or manifest == "":
+				saveJSON(fetchJSON(url), tmpFile)
+				#print(f"Cache is bad, JSON data saved to {tmpFile}")
+				#print(f"Last modified: {whenLastModified(tmpFile)}")		
 			else:
 				jsonData = fetchJSON(url)
 				saveJSON(jsonData, tmpFile)
