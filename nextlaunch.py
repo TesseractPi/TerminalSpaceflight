@@ -44,7 +44,7 @@ def whenLastModified(tmpFile): # find when file last modified
 def parseArgs(): # do some cmd line parse things or whatever
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-v", "--verbose", help = "Display extra messages so you know what's going on", action = "count", default=0)
-``	return parser.parse_args()
+	return parser.parse_args()
 
 def main():
 	manifest = "" # make sure it exists first
