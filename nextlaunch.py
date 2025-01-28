@@ -44,6 +44,7 @@ def whenLastModified(tmpFile): # find when file last modified
 def parseArgs(): # do some cmd line parse things or whatever
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-v", "--verbose", help = "Display extra messages so you know what's going on", action = "count", default=0)
+	parser.add_argument("-?", "--help", help = "Displays next rocket launch date and time in terminal from LaunchLbrary2 API", default=0)
 	return parser.parse_args()
 
 def main():
@@ -88,6 +89,8 @@ def main():
 	
 	with open(tmpFile, "r") as fileThing:
 		manifest = fileThing.read()
+	
+	#print(manifest) # uncomment for debugging
 
 	# get actual data
 	wholeThing = json.loads(manifest)
