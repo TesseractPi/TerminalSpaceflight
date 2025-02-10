@@ -95,8 +95,14 @@ def main():
 	# get actual data
 	wholeThing = json.loads(manifest)
 	mission = wholeThing["results"][0]["name"]
+	mission = str(mission)
 	net = wholeThing["results"][0]["net"]
-	return(f"Next launch: {str(mission)} | {str(net)}")
+	net = str(net)
+	net.replace("Z", "")
+	netFormatted = datetime.fromisoformat(net)
+	netFormatted = str(netFormatted)
+	netFormatted.replace("+00:00", "")
+	return(f"Next launch: {mission} | {netFormatted}")
 	#return results
 
-print(f"{main()}") # FINALLY!!!!!1
+print(f"{main()}") # hey look you found me
