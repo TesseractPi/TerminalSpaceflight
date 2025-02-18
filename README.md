@@ -1,6 +1,6 @@
 # Terminal Spaceflight
-#### A python script to display next rocket launch in terminal
-##### By Sam Rohrbach
+### A python script to display next rocket launch in terminal
+#### By Sam Rohrbach
 
 ****
 
