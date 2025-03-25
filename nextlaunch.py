@@ -16,7 +16,7 @@ from datetime import *
 runningOn = platform.system()
 fileName = ".terminalSpaceflightTempFile.json"
 badVal = "{'name':'no','net':'whenever'}" # something is better than nothing
-tmpFileLinux = "/etc/" # or whatever
+tmpFileLinux = "~/" # or whatever
 tmpFileWindows = "%TEMP%\\"
 tmpFileMac = "$tmpFile/"
 url = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?limit=1&mode=list&offset=1" # launchlibrary2 2.3, only the next launch in list
