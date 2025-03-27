@@ -14,19 +14,15 @@ import argparse
 from datetime import *
 
 runningOn = platform.system()
-fileName = ".terminalSpaceflightTempFile.json"
-badVal = "{'name':'no','net':'whenever'}" # something is better than nothing
-tmpFileLinux = "~/" # or whatever
-tmpFileWindows = "%TEMP%\\"
-tmpFileMac = "$tmpFile/"
+fileName = ".nextlaunch.json"
+badVal = "{'name':'Error | Manifest file is bad. To fix, wait 15 minutes or delete ~/.nextlaunch.json','net':'1970-01-01'}" # something is better than nothing
 url = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?limit=1&mode=list&offset=1" # launchlibrary2 2.3, only the next launch in list
 
-if runningOn == "Linux":
-	tmpFile = tmpFileLinux + fileName
+# because C:\ is just a windows thing
+if runningOn == "Linux" or "Darwin":
+	tmpFile = os.path.expanduser("~/") + fileName
 elif runningOn == "Windows":
-	tmpFile = tmpFileWindows + fileName
-elif runningOn == "Darwin":
-	tmpFile = tmpFileMac + fileName
+	tmpFile = os.environ.get('TEMP', '') + "\\" + fileName
 
 def fetchJSON(url): # get json from url
 	response = requests.get(url)
@@ -41,56 +37,66 @@ def whenLastModified(tmpFile): # find when file last modified
 	timestamp = os.path.getmtime(tmpFile)
 	return datetime.fromtimestamp(timestamp)
 
-def parseArgs(): # do some cmd line parse things or whatever
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-v", "--verbose", help = "Display extra messages so you know what's going on", action = "count", default=0)
-	parser.add_argument("-?", "--help", help = "Displays next rocket launch date and time in terminal from LaunchLbrary2 API", default=0)
+def parseArgs(): # do some cmd line parse things or whatever, added by github copilot 
+	parser = argparse.ArgumentParser("Terminal Spaceflight")
+	parser.add_argument("-v", "--verbose", help = "Display verbose information for debugging", action = "count", default=0)
 	return parser.parse_args()
 
 def main():
-	manifest = "" # make sure it exists first
-	# does file exist?
+	args = parseArgs()
+	manifest = "" # make sure manifest exists first
+	# does temp file exist?
 	try:
 		if os.path.exists(tmpFile):
-			#print(f"Cache already exists at {tmpFile}")
+			if args.verbose:
+				print(f"Cache already exists at {tmpFile}")
 			lastModifiedDate = whenLastModified(tmpFile)
 			timeDifference = datetime.now() - lastModifiedDate
 			if (timeDifference < timedelta(minutes=10)):
-				#print(f"Cache was modified recently at {lastModifiedDate}, skipping overwrite")
-				whatever = "blah blah placeholder" # prevent errors from there being nothing in here
+				if args.verbose:
+					print(f"Cache was modified recently at {lastModifiedDate}, skipping overwrite")
 			elif manifest == badVal or manifest == "":
 				saveJSON(fetchJSON(url), tmpFile)
-				#print(f"Cache is bad, JSON data saved to {tmpFile}")
-				#print(f"Last modified: {whenLastModified(tmpFile)}")		
+				if args.verbose:
+					print(f"Cache is bad, JSON data saved to {tmpFile}")
+					print(f"Last modified: {whenLastModified(tmpFile)}")		
 			else:
 				jsonData = fetchJSON(url)
 				saveJSON(jsonData, tmpFile)
-				#print(f"JSON data saved to {tmpFile}")
-				#print(f"Last modified: {whenLastModified(tmpFile)}")
+				if args.verbose:
+					print(f"JSON data saved to {tmpFile}")
+					print(f"Last modified: {whenLastModified(tmpFile)}")
 		else:
 			fileThing = open(tmpFile, "w")
 			fileThing.write(badVal)
-			#print(f"Cache does not exist at {tmpFile}, creating one")
+			if args.verbose:
+				print(f"Cache does not exist at {tmpFile}, creating one")
 			with open(tmpFile, "r") as fileThing:
 				manifest = fileThing.read()
 			jsonData = fetchJSON(url)
 			saveJSON(jsonData, tmpFile)
-			#print(f"JSON data saved to {tmpFile}")
-			#print(f"Last modified: {whenLastModified(tmpFile)}")
+			if args.verbose:
+				print(f"JSON data saved to {tmpFile}")
+				print(f"Last modified: {whenLastModified(tmpFile)}")
 	except FileNotFoundError:
 		fileThing = open(tmpFile, "w")
 		fileThing.write(badVal)
-		#print(f"Cache does not exist at {tmpFile}, creating one")
+		if args.verbose:
+			print(f"Cache does not exist at {tmpFile}, creating one")
 		with open(tmpFile, "r") as fileThing:
 			manifest = fileThing.read()
 		jsonData = fetchJSON(url)
 		saveJSON(jsonData, tmpFile)
-		#print(f"JSON data saved to {tmpFile}")
+		if args.verbose:
+			print(f"JSON data saved to {tmpFile}")
 	
 	with open(tmpFile, "r") as fileThing:
 		manifest = fileThing.read()
 	
-	#print(manifest) # uncomment for debugging
+	if args.verbose:
+		print("Launch manifest is as follows: ")
+		print(" ")
+		print(manifest) # uncomment for debugging
 
 	# get actual data
 	wholeThing = json.loads(manifest)
@@ -103,6 +109,5 @@ def main():
 	netFormatted = str(netFormatted)
 	netFormatted.replace("+00:00", "")
 	return(f"Next launch: {mission} | {netFormatted}")
-	#return results
 
-print(f"{main()}") # hey look you found me
+print(f"{main()}") # oh no there's an error :(
